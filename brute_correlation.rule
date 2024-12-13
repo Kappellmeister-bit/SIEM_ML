@@ -1,0 +1,63 @@
+event Failed_Login_Attempt:
+    key:
+        src.host,
+        src.ip,
+        dst.host,
+        dst.port,
+        username
+    filter {
+        correlation_name == null and
+        in_list(["deny", "reject", "failed", "unauthorized"], action) and
+        in_list(["authentication", "login", "access"], object) and
+        dst.port != null and
+        src.ip != null and
+        username != null
+    }
+
+rule Brute_Force_Detected: Failed_Login_Attempt[10,] within 5s
+
+    on Failed_Login_Attempt {
+        $src.ip = src.ip
+        $src.host = src.host
+        $src.asset = src.asset
+        $username = username
+        $dst.ip = dst.ip
+        $dst.host = dst.host
+        $dst.asset = dst.asset
+        $dst.port = dst.port
+        $failed_reason = action
+        $first_seen = timestamp if $first_seen == null
+        $last_seen = timestamp
+        $count.failed_attempts = $count.failed_attempts + 1
+    }
+
+emit {
+    $correlation_name = "Brute_Force_Attack"
+    $correlation_type = "incident"
+
+    $importance = "high"
+
+    $category.generic = "Authentication"
+    $category.high = "Brute-Force"
+    $category.low = "Failed Login"
+
+    $object = "login"
+    $action = "failed"
+    $status = "detected"
+
+    # Additional Contextual Fields
+    $src.ip = $src.ip
+    $src.host = $src.host
+    $src.asset = $src.asset
+    $dst.ip = $dst.ip
+    $dst.host = $dst.host
+    $dst.asset = $dst.asset
+    $dst.port = $dst.port
+    $username = $username
+    $failed_reason = $failed_reason
+    $first_seen = $first_seen
+    $last_seen = $last_seen
+    $total_failed_attempts = $count.failed_attempts
+
+    $id = "Custom_SIEM_brute_force_detection"
+}
