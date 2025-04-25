@@ -1,0 +1,61 @@
+event Connection_Attempt:
+    key:
+        src.host,
+        src.ip,
+        dst.host,
+        dst.ip,
+        dst.port,
+        protocol
+    filter {
+        correlation_name == null and
+        in_list(["connect",        
+                 "allowed",
+                 "accept",
+                 "deny",           
+                 "reject",
+                 "reset"],
+                action)                           and
+        protocol       in_list(["tcp","udp"])     and
+        dst.port       != null                    and
+        src.ip         != null                    and
+        dst.ip         != null
+    }
+
+rule Port_Scan_Detected: Connection_Attempt[10,] within 30s
+
+    on Connection_Attempt {
+        $src.ip        = src.ip
+        $src.host      = src.host
+        $src.asset     = src.asset
+
+        $dst.ip        = dst.ip
+        $dst.host      = dst.host
+        $dst.asset     = dst.asset
+
+        $first_seen    = timestamp if $first_seen == null
+        $last_seen     = timestamp
+        $count.ports   = $count.ports + 1
+    }
+
+emit {
+    $correlation_name  = "Port_Scan_Detected"
+    $correlation_type  = "incident"
+    $importance        = "medium"         
+    $category.generic  = "Reconnaissance"
+    $category.high     = "Port-Scan"
+    $category.low      = "Multiple Ports"
+    $object            = "network"
+    $action            = "scan"
+    $status            = "detected"
+    $src.ip            = $src.ip
+    $src.host          = $src.host
+    $src.asset         = $src.asset
+    $dst.ip            = $dst.ip
+    $dst.host          = $dst.host
+    $dst.asset         = $dst.asset
+    $first_seen        = $first_seen
+    $last_seen         = $last_seen
+    $total_ports_scanned = $count.ports
+
+    $id                = "Custom_SIEM_port_scan_detection"
+}
