@@ -14,3 +14,4 @@ ps -o pid,ppid,cmd -p <PID>
 cat /proc/<PID>/status | grep PPid  
 pstree -p <PID>  
 ausearch -m USER_AUTH --success no | awk -F 'addr=' '{print $2}' | awk '{print $1}' | sort | uniq -c | sort -nr
+ausearch -k recon_exec | aureport -x --summary  
