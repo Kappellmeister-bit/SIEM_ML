@@ -1,12 +1,12 @@
 ## Правила auditd
 -a always,exit -F arch=b64 -S execve  
--w /var/log/auth.log -p rwxa -k auth_logs
--a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/nmap        -k recon_exec
--a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/masscan     -k recon_exec
--a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/nping       -k recon_exec
--a always,exit -F arch=b64 -S execve,execveat \ -F exe=/bin/nc              -k recon_exec
--a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/ncat        -k recon_exec
--a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/hping3      -k recon_exec
+-w /var/log/auth.log -p rwxa -k auth_logs  
+-a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/nmap        -k recon_exec  
+-a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/masscan     -k recon_exec  
+-a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/nping       -k recon_exec  
+-a always,exit -F arch=b64 -S execve,execveat \ -F exe=/bin/nc              -k recon_exec  
+-a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/ncat        -k recon_exec  
+-a always,exit -F arch=b64 -S execve,execveat \ -F exe=/usr/bin/hping3      -k recon_exec  
 
 
 ## Команды поиска связанных событий в auditd
